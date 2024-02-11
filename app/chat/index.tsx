@@ -7,12 +7,16 @@ import { Gesture, GestureHandlerRootView, TapGestureHandler } from "react-native
 import React from "react";
 import Animated, { ZoomOut, ZoomIn } from "react-native-reanimated";
 import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
-import  Finder from "../../components/Finder";
-import  ScanQRCodePrompt  from "../../components/ScanQRCodePrompt";
+import Finder from "../../components/Finder";
+import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
+import ContactsModal from "../../components/ContactsModal";
 
 export default function Page() {
     const [finderShown, setFinderShown] = React.useState(false);
     const [scanQRVisible, setScanQRVisible] = React.useState(false);
+    const [saveUserPromptShown, setSaveUserPromptShown] = React.useState(false);
+
+    const [contactsShown, setContactsShown] = React.useState(false);
 
     const toProfile = () => {
         router.push("/chat/user");
@@ -34,7 +38,7 @@ export default function Page() {
             <Stack.Screen options={{
                 title: "Ghost", headerRight(props) {
                     return <View className="flex flex-row gap-x-4">
-                        <Feather name="book" size={24} color={props.tintColor} />
+                        <Feather name="book" size={24} color={props.tintColor} onPress={() => setContactsShown(true)} />
                         <Feather name="search" size={24} color={props.tintColor} onPress={toggleFinder} />
                         <Feather name="user" size={24} color={props.tintColor} onPress={toProfile} />
                     </View>
@@ -48,7 +52,9 @@ export default function Page() {
                     </TapGestureHandler>
                 </Animated.View>
             }
+            <ContactsModal shown={contactsShown} onRequestClose={() => setContactsShown(false)} />
             <ScanQRBottomsheet visible={scanQRVisible} onScanQR={handleScannedQR} onRequestClose={() => setScanQRVisible(false)} />
+            <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} />
             <StatusBar style="auto" />
         </View>
     );
