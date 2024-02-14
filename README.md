@@ -4,12 +4,12 @@ https://reactnative.dev/docs/getting-started)
 - [Expo v50](https://expo.dev/changelog/2024/01-18-sdk-50)
 - [Expo-Router v3](https://docs.expo.dev/router/introduction/)
 
-### Installation
+### Installation🚀
 ```bash
 npm install
 ```
 
-### Run
+### Run📱
 ```bash
 npx expo start
 ```
