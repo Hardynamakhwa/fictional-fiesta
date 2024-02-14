@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import {
+import
+{
     FlatList,
     Modal,
     Pressable,
@@ -9,11 +10,9 @@ import {
     TextInput,
     View,
 } from "react-native";
+import userStore from "../store/userStore";
+import { User } from "../types/auth";
 
-type user = {
-    displayName: string;
-    address: string; // bitcoin like address
-};
 
 export default function ContactsModal({
     shown,
@@ -21,54 +20,22 @@ export default function ContactsModal({
 }: {
     shown: boolean;
     onRequestClose: () => void;
-}) {
+    })
+{
     const [search, setSearch] = React.useState("");
 
-    const users: user[] = [
-        {
-            displayName: "Lee Von",
-            address: "jd4wu48oJF394U309F930I9FEOW39",
-        },
-        {
-            displayName: "Jenna Christiansen",
-            address: "DMFJ3OWIJDW93WIj93utu3u9tu49t",
-        },
-        {
-            displayName: "Miss Jeremy Kiehn",
-            address: "jf29034u39rjijd93w8ur9ij484u9",
-        },
-    ];
+    const users: User[] = userStore.users;
 
-    const searchResults = () => {
+    const searchResults = () =>
+    {
         return users.filter((user) =>
-            user.displayName
+            (user.displayName || user.address)
                 .toLocaleLowerCase()
                 .includes(search.toLocaleLowerCase())
         );
     };
 
-    const UserListItem = ({ item }: { item: user }) => {
-        return (
-            <View className="px-4 py-1">
-                <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
-                    {item.displayName}
-                </Text>
-                <Text className="text-sm text-gray-500 truncate dark:text-gray-400">
-                    {item.address}
-                </Text>
-            </View>
-        );
-    };
 
-    const emptyListComponent = search ? (
-        <Text className="text-center text-gray-500">
-            No results found
-        </Text>
-    ) : (
-        <Text className="text-center text-gray-500">
-            No contacts found
-        </Text>
-    );
     return (
         <Modal
             animationType="slide"
@@ -106,13 +73,45 @@ export default function ContactsModal({
                 <FlatList
                     className="flex-1 w-full"
                     data={search ? searchResults() : users}
-                    renderItem={({ item }) => (
-                        <UserListItem item={item} />
-                    )}
-                    ListEmptyComponent={emptyListComponent}
+                    renderItem={renderItem}
+                    ListEmptyComponent={emptyListComponent(!!search.length)}
                     keyExtractor={(item) => item.address}
                 />
             </View>
         </Modal>
     );
+}
+
+
+function renderItem({ item }: { item: User })
+{
+    return <>
+        <View className="flex flex-row items-center gap-4 px-4 py-1">
+            <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                <Text className="font-medium text-gray-600 dark:text-gray-300">JL</Text>
+            </View>
+            <View>
+                <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                    {item.displayName}
+                </Text>
+                <Text className="text-sm text-gray-500 truncate dark:text-gray-400">
+                    {item.address}
+                </Text>
+            </View>
+        </View>
+    </>
+}
+
+function emptyListComponent(isSearching: boolean)
+{
+    return isSearching ?
+        <>
+            <Text className="text-center text-gray-500">
+                No results found
+            </Text>
+        </> : <>
+            <Text className="text-center text-gray-500">
+                No saved contacts found
+            </Text>
+        </>
 }
