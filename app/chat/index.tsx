@@ -8,7 +8,7 @@ import { TapGestureHandler } from "react-native-gesture-handler";
 import Animated, { SlideInDown, SlideOutDown, ZoomIn, ZoomOut } from "react-native-reanimated";
 import ContactsModal from "../../components/ContactsModal";
 import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
-import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
+// import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
 import { User } from "../../types/auth";
 
 
@@ -17,27 +17,22 @@ const users: User[] = [
     { displayName: "Mrs. Perry Welch", address: "address2", publicKey: "key" }
 ]
 
-export default function Page()
-{
+export default function Page() {
     const [finderShown, setFinderShown] = React.useState(false);
     const [finderQuery, setFinderQuery] = React.useState("");
     const [scanQRVisible, setScanQRVisible] = React.useState(false);
-    const [saveUserPromptShown, setSaveUserPromptShown] = React.useState(false);
 
     const [contactsShown, setContactsShown] = React.useState(false);
 
-    const toProfile = () =>
-    {
+    const toProfile = () => {
         router.push("/chat/user");
     }
 
-    function toggleScanQR()
-    {
+    function toggleScanQR() {
         setScanQRVisible(true);
     }
 
-    const handleScannedQR = ({ data }: { data: string }) =>
-    {
+    const handleScannedQR = ({ data }: { data: string }) => {
 
     }
 
@@ -50,13 +45,15 @@ export default function Page()
     return (
         <View className="flex flex-col flex-1 items-center justify-center">
             <Stack.Screen options={{
-                title: "Ghost", headerRight(props)
-                {
-                    return <View className="flex flex-row gap-x-4">
-                        <Feather name="book" size={24} color={props.tintColor} onPress={() => setContactsShown(true)} />
-                        <Feather name="search" size={24} color={props.tintColor} onPress={() => setFinderShown(true)} />
-                        <Feather name="user" size={24} color={props.tintColor} onPress={toProfile} />
-                    </View>
+                title: "Ghost",
+                headerRight(props) {
+                    return <>
+                        <View className="flex flex-row gap-x-4">
+                            <Feather name="book" size={24} color={props.tintColor} onPress={() => setContactsShown(true)} />
+                            <Feather name="search" size={24} color={props.tintColor} onPress={() => setFinderShown(true)} />
+                            <Feather name="user" size={24} color={props.tintColor} onPress={toProfile} />
+                        </View>
+                    </>
                 },
             }} />
             <FlatList className="flex-1 w-full" data={data} renderItem={renderUser} keyExtractor={item => item.address} ListEmptyComponent={renderUsersEmpty} />
@@ -80,7 +77,7 @@ export default function Page()
             }
             <ContactsModal shown={contactsShown} onRequestClose={() => setContactsShown(false)} />
             <ScanQRBottomsheet visible={scanQRVisible} onScanQR={handleScannedQR} onRequestClose={() => setScanQRVisible(false)} />
-            <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} />
+            {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
             <StatusBar style="auto" />
         </View>
     );
@@ -88,8 +85,7 @@ export default function Page()
 
 }
 
-function renderUser({ item }: { item: User })
-{
+function renderUser({ item }: { item: User }) {
     const handlePress = () => router.push(`/chat/${item.address}`);
 
     return <>
@@ -100,8 +96,7 @@ function renderUser({ item }: { item: User })
     </>
 }
 
-function renderUsersEmpty()
-{
+function renderUsersEmpty() {
     return <>
         <View className="flex-1 items-center justify-center">
             <Text>No users</Text>

@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import React from "react";
 import { Pressable, SectionList, Text, TextInput, View } from "react-native";
-import messagesStore from "../../store/messagesStore";
+import chatStore from "../../store/chatStore";
 import userStore from "../../store/userStore";
 import { Message } from "../../types/chat";
 
@@ -18,7 +18,7 @@ export default function Page() {
 
     if (!user) return null
 
-    const messages = _.filter(messagesStore.messages, (message) => _.includes([user, userStore.admin], message.sender) && _.includes([user, userStore.admin], message.receiver))
+    const messages = _.filter(chatStore.messages, (message) => _.includes([user, userStore.admin], message.sender) && _.includes([user, userStore.admin], message.receiver))
     const sections = _.map(
         _.groupBy(
             _.sortBy(
