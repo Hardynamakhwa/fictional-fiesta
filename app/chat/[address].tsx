@@ -14,7 +14,7 @@ export default function Page() {
     const [input, setInput] = React.useState('')
     const inputRef = React.createRef<TextInput>()
 
-    const user = userStore.get(address as string);
+    const user = address ? userStore.get(address as string) : userStore.admin;
 
     if (!user) return null
 
@@ -33,14 +33,16 @@ export default function Page() {
     const toUser = () => router.push("/chat/user?address=" + user.address);
 
     const handleSubmit = () => {
-        console.log(input);
+        inputRef.current?.blur();
+        chatStore.push(user, input)
+        setInput('')
     }
     const keyExtractor = (item: Message) => {
         return item.id;
     }
 
     return (
-        <View className="flex-1 items-center justify-center">
+        <View className="flex-1 flex h-full items-center justify-center">
             <Stack.Screen options={{
                 title: user.displayName || user.address,
                 headerRight(props) {
@@ -49,11 +51,11 @@ export default function Page() {
                     )
                 },
             }} />
-            <SectionList className="flex-1 flex w-full flex-col" sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ListEmptyComponent={emptyListComponent()} keyExtractor={keyExtractor} />
+            <SectionList className="flex-1 flex w-full h-full flex-col" sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ListEmptyComponent={emptyListComponent()} keyExtractor={keyExtractor} />
 
-            <View className="w-full p-2 bg-white mt-auto gap-x-2 flex flex-row items-end">
-                <TextInput ref={inputRef} placeholder="Aa..." value={input} onChangeText={setInput} className="flex-1 p-2.5 bg-slate-200  border-slate-300 text-slate-900 text-sm rounded-lg  focus:border-slate-400 block " multiline numberOfLines={1} />
-                <Pressable className="rounded-xl items-center justify-center p-3.5 bg-slate-900" onPress={handleSubmit}>
+            <View className="w-full p-2 bg-white gap-x-2 flex flex-row items-end">
+                <TextInput ref={inputRef} placeholder="Aa..." value={input} onChangeText={setInput} className="flex-1 p-2.5 bg-gray-200  border-gray-300 text-gray-900 text-sm rounded-lg  focus:border-gray-400 block " multiline numberOfLines={1} />
+                <Pressable className="rounded-xl items-center justify-center p-3.5 bg-gray-900" onPress={handleSubmit}>
                     <Feather name="arrow-up" size={20} color="white" />
                 </Pressable>
             </View>
@@ -66,9 +68,19 @@ function renderItem({ item }: { item: Message }) {
         throw new Error("Function not implemented.");
     }
 
+    if (_.isEqual(item.sender, userStore.admin)) {
+        return <>
+            <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
+                <View className="max-w-[80%] leading-1.5 p-4 border border-gray-200 bg-gray-50 rounded-lg shadow-lg">
+                    <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
+                </View>
+            </Pressable>
+        </>
+    }
+
     return <>
         <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
-            <View className="max-w-[80%] leading-1.5 p-4 border border-slate-300 bg-white rounded-lg shadow-lg">
+            <View className="max-w-[80%] leading-1.5 p-4 border border-gray-300 bg-white rounded-lg shadow-lg">
                 <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
             </View>
         </Pressable>
@@ -84,9 +96,8 @@ function renderSectionHeader({ section }: { section: { title: string } }) {
 }
 
 function emptyListComponent() {
-    return <>
-        <View className="flex-1 flex justify-center items-center">
-            <Text>No message</Text>
-        </View>
-    </>
+    return <View className="flex-1 flex justify-center my-auto items-center">
+        <Text className="text-gray-500 font-medium">No message</Text>
+    </View>
+
 }

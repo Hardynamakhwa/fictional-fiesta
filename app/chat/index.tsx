@@ -6,7 +6,7 @@ import React from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import Animated, { SlideInDown, SlideOutDown, ZoomIn, ZoomOut } from "react-native-reanimated";
-import ContactsModal from "../../components/ContactsModal";
+import Contacts from "../../components/Contacts";
 import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
 // import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
 import { User } from "../../types/auth";
@@ -43,7 +43,7 @@ export default function Page() {
         users;
 
     return (
-        <View className="flex flex-col flex-1 items-center justify-center">
+        <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
             <Stack.Screen options={{
                 title: "Ghost",
                 headerRight(props) {
@@ -75,7 +75,7 @@ export default function Page() {
                     </Animated.View>
                 </>
             }
-            <ContactsModal shown={contactsShown} onRequestClose={() => setContactsShown(false)} />
+            <Contacts shown={contactsShown} onRequestClose={() => setContactsShown(false)} />
             <ScanQRBottomsheet visible={scanQRVisible} onScanQR={handleScannedQR} onRequestClose={() => setScanQRVisible(false)} />
             {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
             <StatusBar style="auto" />
@@ -103,3 +103,4 @@ function renderUsersEmpty() {
         </View>
     </>
 }
+

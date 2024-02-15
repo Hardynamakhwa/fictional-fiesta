@@ -1,7 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import
-{
+import {
     FlatList,
     Modal,
     Pressable,
@@ -12,6 +11,7 @@ import
 } from "react-native";
 import userStore from "../store/userStore";
 import { User } from "../types/auth";
+import { router } from "expo-router";
 
 
 export default function ContactsModal({
@@ -20,14 +20,12 @@ export default function ContactsModal({
 }: {
     shown: boolean;
     onRequestClose: () => void;
-    })
-{
+}) {
     const [search, setSearch] = React.useState("");
 
     const users: User[] = userStore.users;
 
-    const searchResults = () =>
-    {
+    const searchResults = () => {
         return users.filter((user) =>
             (user.displayName || user.address)
                 .toLocaleLowerCase()
@@ -83,12 +81,16 @@ export default function ContactsModal({
 }
 
 
-function renderItem({ item }: { item: User })
-{
+function renderItem({ item }: { item: User }) {
+
+    const preffix = (item.displayName || item.address).substring(0, 2).toLocaleUpperCase();
+    const handlePress = () => {
+        router.push(`/chat/${item.address}`);
+    }
     return <>
-        <View className="flex flex-row items-center gap-4 px-4 py-1">
+        <Pressable onPress={handlePress} className="flex flex-row items-center gap-4 px-4 py-1">
             <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
-                <Text className="font-medium text-gray-600 dark:text-gray-300">JL</Text>
+                <Text className="font-medium text-gray-600 dark:text-gray-300">{preffix}</Text>
             </View>
             <View>
                 <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
@@ -98,12 +100,11 @@ function renderItem({ item }: { item: User })
                     {item.address}
                 </Text>
             </View>
-        </View>
+        </Pressable>
     </>
 }
 
-function emptyListComponent(isSearching: boolean)
-{
+function emptyListComponent(isSearching: boolean) {
     return isSearching ?
         <>
             <Text className="text-center text-gray-500">

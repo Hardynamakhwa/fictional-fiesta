@@ -1,27 +1,29 @@
-import { makeAutoObservable } from 'mobx';
+import { computed, observable, action } from 'mobx';
 import { User } from '../types/auth';
 import _ from 'lodash';
 
 
 class UserStore {
 
-    users: User[] = [];
+    @observable users: User[] = [
+        { displayName: "Mark Murazik", address: "address1", publicKey: "key" },
+        { displayName: "Mrs. Perry Welch", address: "address2", publicKey: "key" }
+    ];
     #admin: User = {
         displayName: 'Me',
         address: 'ADDRESS',
         publicKey: 'key'
     }
     constructor() {
-        makeAutoObservable(this)
     }
 
-    get admin() { return this.#admin }
+    @computed get admin() { return this.#admin }
 
-    get(address: string): User | undefined {
+    @action get(address: string): User | undefined {
         return _.find(this.users, ['address', address])
     }
 
-    push(user: User) {
+    @action push(user: User) {
         this.users.push(user);
     }
 }
