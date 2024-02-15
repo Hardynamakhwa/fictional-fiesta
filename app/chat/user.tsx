@@ -4,29 +4,19 @@ import { Pressable, View, Text } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import QRCode from "react-qr-code";
-import Dialog, { DialogActions, DialogTitle } from "../../components/Dialog";
 import { User } from "../../types/auth";
+import userStore from "../../store/userStore";
 
-export default function Page()
-{
+export default function Page() {
     const { address } = useLocalSearchParams();
-    const [prompt, setPrompt] = React.useState(false);
-    const isUser = !!address;
 
+    const user = address ? userStore.get(address as string) as User : userStore.admin;
 
-    const user: User = {
-        displayName: "User",
-        address: address as string,
-        publicKey: "key",
-    }
-
-    const handleCopy = () =>
-    {
+    const handleCopy = () => {
         console.log("copied");
     }
 
-    if (!isUser)
-    {
+    if (address) {
         return (
             <View className="flex-1 items-center justify-center p-4">
                 <Stack.Screen options={{
@@ -81,7 +71,7 @@ export default function Page()
                 </Pressable>
             </View>
 
-            <Pressable className="flex flex-row justify-center w-full px-4 py-2.5 bg-red-500 mt-auto rounded-lg items-center" onPress={() => setPrompt(!prompt)}>
+            <Pressable className="flex flex-row justify-center w-full px-4 py-2.5 bg-red-500 mt-auto rounded-lg items-center" onPress={() => null}>
                 <Text ellipsizeMode="tail" numberOfLines={1} className="text-white font-medium">Delete <Text className="font-semibold">{user.displayName || user.address}</Text></Text>
             </Pressable>
             <StatusBar style="auto" />
