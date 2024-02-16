@@ -10,6 +10,8 @@ import Contacts from "../../components/Contacts";
 import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
 // import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
 import { User } from "../../types/auth";
+import { useColorScheme } from "nativewind";
+import theme from "../../misc/theme";
 
 
 const users: User[] = [
@@ -18,6 +20,7 @@ const users: User[] = [
 ]
 
 export default function Page() {
+    const { colorScheme } = useColorScheme()
     const [finderShown, setFinderShown] = React.useState(false);
     const [finderQuery, setFinderQuery] = React.useState("");
     const [scanQRVisible, setScanQRVisible] = React.useState(false);
@@ -59,10 +62,10 @@ export default function Page() {
             <FlatList className="flex-1 w-full" data={data} renderItem={renderUser} keyExtractor={item => item.address} ListEmptyComponent={renderUsersEmpty} />
             {finderShown ?
                 <>
-                    <Animated.View entering={SlideInDown} exiting={SlideOutDown} className="flex flex-row items-center gap-x-2 p-2 bg-white">
-                        <TextInput value={finderQuery} onChangeText={setFinderQuery} className="flex-1 rounded-lg p-2 placeholder:text-white border border-slate-300 bg-gray-200" placeholder="Find" placeholderTextColor={"gray"} returnKeyType="search" />
+                    <Animated.View entering={SlideInDown} exiting={SlideOutDown} className="flex flex-row items-center gap-x-4 p-4 bg-white dark:bg-gray-800">
+                        <TextInput value={finderQuery} onChangeText={setFinderQuery} className="flex-1 rounded-lg p-2 placeholder:text-white border border-slate-300 bg-gray-200 dark:border-gray-700 dark:focus:border-gray-600 dark:bg-gray-900" placeholder="Find" placeholderTextColor={"gray"} returnKeyType="search" />
                         <Pressable>
-                            <Feather name="x" size={24} onPress={() => setFinderShown(false)} />
+                            <Feather name="x" size={24} color={theme[colorScheme].tint} onPress={() => setFinderShown(false)} />
                         </Pressable>
                     </Animated.View>
                 </>
@@ -87,11 +90,17 @@ export default function Page() {
 
 function renderUser({ item }: { item: User }) {
     const handlePress = () => router.push(`/chat/${item.address}`);
+    const preffix = (item.displayName || item.address).substring(0, 2).toLocaleUpperCase();
 
     return <>
-        <Pressable className="flex flex-col px-4 py-2" onPress={handlePress}>
-            <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">{item.displayName || item.address}</Text>
-            {item.displayName && <Text numberOfLines={1} ellipsizeMode="tail" className="text-sm text-gray-500 truncate dark:text-gray-400">{item.address}</Text>}
+        <Pressable className="flex flex-row gap-4 px-4 py-1" onPress={handlePress}>
+            <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                <Text className="font-medium text-gray-600 dark:text-gray-300">{preffix}</Text>
+            </View>
+            <View>
+                <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">{item.displayName || item.address}</Text>
+                {item.displayName && <Text numberOfLines={1} ellipsizeMode="tail" className="text-sm text-gray-500 truncate dark:text-gray-400">{item.address}</Text>}
+            </View>
         </Pressable>
     </>
 }

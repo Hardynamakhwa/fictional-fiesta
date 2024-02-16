@@ -20,12 +20,12 @@ export default function Page() {
     };
 
     return (
-        <View className="flex-1 flex items-center justify-center p-4 dark:bg-gray-900">
+        <View className="flex-1 flex items-center justify-center p-4 dark:bg-black">
             <View className="w-full flex flex-row items-center ">
                 <Feather name="chevron-left" size={24} />
                 <Text className="font-bold text-lg my-8 mx-auto">Import</Text>
             </View>
-            <Text className="mb-4 text-center">
+            <Text className="mb-4 text-center dark:text-white">
                 Enter your 12-word seed phrase below. This
                 phrase is used to securely restore your
                 account.
@@ -38,13 +38,13 @@ export default function Page() {
                 autoCapitalize="none"
                 multiline
                 placeholder="Enter your 12-word seed phrase"
-                className="w-full p-2.5 bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg  focus:border-gray-400 block"
+                className="w-full p-2.5 text-gray-900 text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:text-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
             />
 
             <View className="mt-auto w-full">
-                <Text>
+                <Text className="dark:text-white">
                     By importing, I agree to the{" "}
-                    <Text className="text-blue-500 underline">
+                    <Text className="text-blue-600 dark:text-blue-500 underline">
                         Terms of Service
                     </Text>{" "}
                     and{" "}
@@ -56,7 +56,7 @@ export default function Page() {
                     onPress={handleImport}
                     className="w-full items-center justify-center p-3 rounded-xl bg-gray-800 dark:bg-white mt-2"
                 >
-                    <Text className="text-white font-medium dark:text-gray-800 capitalize">
+                    <Text className="text-white font-semibold dark:text-gray-800 capitalize">
                         import
                     </Text>
                 </Pressable>
