@@ -3,14 +3,13 @@ import dayjs from 'dayjs';
 import { Stack, router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
+import { useColorScheme } from "nativewind";
 import React from "react";
 import { Pressable, SectionList, Text, TextInput, View } from "react-native";
+import theme from "../../misc/theme";
 import chatStore from "../../store/chatStore";
 import userStore from "../../store/userStore";
 import { Message } from "../../types/chat";
-import theme from "../../misc/theme";
-import { useColorScheme } from "nativewind";
-import { SQLiteProvider } from "expo-sqlite/next";
 
 export default function Page() {
     const { address } = useLocalSearchParams();
@@ -33,7 +32,7 @@ export default function Page() {
         ),
         (data, title) => ({ title, data })
     )
-    const selected: string[] = [];
+    const [selected, setSelected] = React.useState<Message[]>([])
 
     const toUser = () => router.push("/chat/user?address=" + user.address);
 
@@ -42,65 +41,62 @@ export default function Page() {
         chatStore.push(user, input)
         setInput('')
     }
-    const keyExtractor = (item: Message) => {
-        return item.id;
-    }
+    const headerTitle = _.isEmpty(selected) ? (user.displayName || user.address) : `${_.size(selected)} selected`
 
     return (
         <View className="flex-1 flex h-full items-center justify-center dark:bg-black">
             <Stack.Screen options={{
-                title: user.displayName || user.address,
+                title: headerTitle,
+                headerLeft: _.isEmpty(selected) ? undefined : (props) => (<Feather name="x" color={props.tintColor} />),
                 headerRight(props) {
                     return (
                         <Feather name="user" size={24} color={props.tintColor} onPress={toUser} />
                     )
                 },
             }} />
-            <SQLiteProvider databaseName="test_1.db">
-                <SectionList
-                    className="flex-1 flex w-full h-full flex-col"
-                    sections={sections}
-                    renderItem={({ item }: { item: Message }) => {
-                        const handlePress = () => {
-                            throw new Error("Function not implemented.");
-                        }
-                        if (_.isEqual(item.sender, userStore.admin)) {
-                            return <>
-                                <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
-                                    <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
-                                        <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
-                                    </View>
-                                </Pressable>
-                            </>
-                        }
+            <SectionList
+                className="flex-1 flex w-full h-full flex-col"
+                sections={sections}
+                renderItem={({ item }: { item: Message }) => {
+                    const handlePress = () => {
+                        setSelected(_.xor(selected, [item]));
+                    }
+                    if (_.isEqual(item.sender, userStore.admin)) {
                         return <>
-                            <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
-                                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                    <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
+                            <Pressable className={"w-full flex px-2 py-1 items-end " + (_.includes(selected, item) && ' bg-blue-600/75')} onPress={handlePress}>
+                                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
+                                    <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
                                 </View>
                             </Pressable>
                         </>
-                    }}
-                    renderSectionHeader={renderSectionHeader}
-                    ListEmptyComponent={emptyListComponent()}
-                    keyExtractor={keyExtractor}
-                />
+                    }
+                    return <>
+                        <Pressable className={"w-full flex px-2 py-1 items-end " + (_.includes(selected, item) && ' bg-blue-600/75')} onPress={handlePress}>
+                            <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
+                            </View>
+                        </Pressable>
+                    </>
+                }}
+                renderSectionHeader={renderSectionHeader}
+                ListEmptyComponent={emptyListComponent()}
+                keyExtractor={(item) => item.id}
+            />
 
-                <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
-                    <TextInput
-                        ref={inputRef}
-                        placeholder="Aa..."
-                        placeholderTextColor={'gray'}
-                        value={input}
-                        onChangeText={setInput}
-                        className="flex-1 p-2.5 text-black dark:text-white text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
-                        multiline numberOfLines={1}
-                    />
-                    <Pressable className="rounded-xl items-center justify-center p-3.5 bg-gray-900 dark:bg-gray-50" onPress={handleSubmit}>
-                        <Feather name="arrow-up" size={20} color={theme[colorScheme].bg} />
-                    </Pressable>
-                </View>
-            </SQLiteProvider>
+            <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
+                <TextInput
+                    ref={inputRef}
+                    placeholder="Aa..."
+                    placeholderTextColor={'gray'}
+                    value={input}
+                    onChangeText={setInput}
+                    className="flex-1 p-2.5 text-black dark:text-white text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
+                    multiline numberOfLines={1}
+                />
+                <Pressable className="rounded-xl items-center justify-center p-3.5 bg-gray-900 dark:bg-gray-50" onPress={handleSubmit}>
+                    <Feather name="arrow-up" size={20} color={theme[colorScheme].bg} />
+                </Pressable>
+            </View>
 
             <StatusBar style="auto" />
         </View>
