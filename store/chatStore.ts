@@ -22,6 +22,10 @@ class MessagesStore {
         }
         this.messages.push(message)
     }
+
+    @action pop(id:string) {
+        this.massages.splice(0, _.size(this.messages), ...(_.filter(this.messages, (message)=> message.id !== id)));
+    }
 }
 
 export default new MessagesStore()
