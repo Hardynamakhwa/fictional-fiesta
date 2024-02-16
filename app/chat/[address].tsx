@@ -10,6 +10,7 @@ import userStore from "../../store/userStore";
 import { Message } from "../../types/chat";
 import theme from "../../misc/theme";
 import { useColorScheme } from "nativewind";
+import { SQLiteProvider } from "expo-sqlite/next";
 
 export default function Page() {
     const { address } = useLocalSearchParams();
@@ -55,49 +56,52 @@ export default function Page() {
                     )
                 },
             }} />
-            <SectionList
-                className="flex-1 flex w-full h-full flex-col"
-                sections={sections}
-                renderItem={({ item }: { item: Message }) => {
-                    const handlePress = () => {
-                        throw new Error("Function not implemented.");
-                    }
-                    if (_.isEqual(item.sender, userStore.admin)) {
+            <SQLiteProvider databaseName="test_1.db">
+                <SectionList
+                    className="flex-1 flex w-full h-full flex-col"
+                    sections={sections}
+                    renderItem={({ item }: { item: Message }) => {
+                        const handlePress = () => {
+                            throw new Error("Function not implemented.");
+                        }
+                        if (_.isEqual(item.sender, userStore.admin)) {
+                            return <>
+                                <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
+                                    <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
+                                        <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
+                                    </View>
+                                </Pressable>
+                            </>
+                        }
                         return <>
-                            <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
-                                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
-                                    <Text className="text-sm font-medium text-gray-900">{item.text}</Text>
+                            <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
+                                <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+                                    <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
                                 </View>
                             </Pressable>
                         </>
-                    }
-                    return <>
-                        <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
-                            <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                <Text className="text-sm font-medium text-gray-900 dark:text-white">{item.text}</Text>
-                            </View>
-                        </Pressable>
-                    </>
-                }}
-                renderSectionHeader={renderSectionHeader}
-                ListEmptyComponent={emptyListComponent()}
-                keyExtractor={keyExtractor}
-            />
-
-            <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
-                <TextInput
-                    ref={inputRef}
-                    placeholder="Aa..."
-                    placeholderTextColor={'gray'}
-                    value={input}
-                    onChangeText={setInput}
-                    className="flex-1 p-2.5 text-black dark:text-white text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
-                    multiline numberOfLines={1}
+                    }}
+                    renderSectionHeader={renderSectionHeader}
+                    ListEmptyComponent={emptyListComponent()}
+                    keyExtractor={keyExtractor}
                 />
-                <Pressable className="rounded-xl items-center justify-center p-3.5 bg-gray-900 dark:bg-gray-50" onPress={handleSubmit}>
-                    <Feather name="arrow-up" size={20} color={theme[colorScheme].bg} />
-                </Pressable>
-            </View>
+
+                <View className="w-full p-4 gap-x-4 flex flex-row items-end bg-white dark:bg-black">
+                    <TextInput
+                        ref={inputRef}
+                        placeholder="Aa..."
+                        placeholderTextColor={'gray'}
+                        value={input}
+                        onChangeText={setInput}
+                        className="flex-1 p-2.5 text-black dark:text-white text-sm rounded-lg bg-gray-200 border border-gray-300 focus:border-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:focus:border-gray-600"
+                        multiline numberOfLines={1}
+                    />
+                    <Pressable className="rounded-xl items-center justify-center p-3.5 bg-gray-900 dark:bg-gray-50" onPress={handleSubmit}>
+                        <Feather name="arrow-up" size={20} color={theme[colorScheme].bg} />
+                    </Pressable>
+                </View>
+            </SQLiteProvider>
+
             <StatusBar style="auto" />
         </View>
     );

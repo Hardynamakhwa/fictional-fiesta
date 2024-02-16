@@ -9,14 +9,22 @@ import userStore from "../../store/userStore";
 import _ from "lodash";
 import { useColorScheme } from "nativewind";
 import theme from "../../misc/theme";
+import configStore, { scheme } from "../../store/configStore";
+import { ColorSchemeSystem } from "nativewind/dist/style-sheet/color-scheme";
 
 export default function Page() {
     const { address } = useLocalSearchParams();
+    const colorScheme = useColorScheme()
 
     const [promptDelete, setPromptDelete] = React.useState(false);
 
     const user = address ? userStore.get(address as string) as User : userStore.admin;
     const isAdmin = _.isEqual(user, userStore.admin);
+
+    const handleTheme = (scheme: ColorSchemeSystem) => {
+        colorScheme.setColorScheme(scheme)
+        configStore.scheme = scheme;
+    }
 
     return (
         <View className="flex-1 justify-end p-4 dark:bg-black">
@@ -29,9 +37,9 @@ export default function Page() {
                 isAdmin ?
                     <>
                         <Options title="Theme Settings">
-                            <Option label="system" icon="circle" />
-                            <Option label="light" icon="circle" />
-                            <Option label="dark" icon="circle" isTrailing />
+                            <Option label="system" icon={configStore.scheme === 'system' ? "disc" : "circle"} onTap={() => handleTheme('system')} />
+                            <Option label="light" icon={configStore.scheme === 'light' ? "disc" : "circle"} onTap={() => handleTheme('light')} />
+                            <Option label="dark" icon={configStore.scheme === 'dark' ? "disc" : "circle"} isTrailing onTap={() => handleTheme('dark')} />
                         </Options>
                         <Options title="Privacy Controls">
                             <Option label="Visibility Settings" icon="chevron-right" />
@@ -53,9 +61,7 @@ export default function Page() {
                         </Options>
                     </>
             }
-
-
-            {
+            {//danger zone
                 isAdmin ?
                     <>
                         <Pressable className="flex flex-row justify-center w-full px-4 py-2.5 bg-red-500 mt-4 rounded-lg items-center" onPress={() => null}>
@@ -100,10 +106,17 @@ function Options({ title, children }: { title: string; children: React.ReactNode
     </>
 }
 
-function Option({ label, icon, isTrailing = false }: { label: string, icon: string, isTrailing?: boolean }) {
+interface OptionProps {
+    label: string,
+    icon: string,
+    isTrailing?: boolean,
+    onTap?: () => void
+}
+
+function Option({ label, icon, isTrailing = false, onTap }: OptionProps) {
     const { colorScheme } = useColorScheme()
     return <>
-        <Pressable className={"flex flex-row px-4 py-2.5 justify-between " + (!isTrailing && 'border-b border-gray-300 dark:border-gray-700')}>
+        <Pressable onPress={onTap} className={"flex flex-row px-4 py-2.5 justify-between " + (!isTrailing && 'border-b border-gray-300 dark:border-gray-700')}>
             <Text className="dark:text-white font-medium capitalize">{label}</Text>
             {/**@ts-ignore */}
             <Feather name={icon} size={20} color={theme[colorScheme].tint} />

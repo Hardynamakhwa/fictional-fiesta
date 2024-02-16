@@ -3,6 +3,7 @@ import { Message } from "../types/chat"
 import { action, observable } from 'mobx'
 import * as crypto from 'expo-crypto';
 import userStore from "./userStore";
+import _ from "lodash";
 
 class MessagesStore {
 
@@ -24,7 +25,7 @@ class MessagesStore {
     }
 
     @action pop(id:string) {
-        this.massages.splice(0, _.size(this.messages), ...(_.filter(this.messages, (message)=> message.id !== id)));
+        this.messages.splice(0, _.size(this.messages), ...(_.filter(this.messages, (message)=> message.id !== id)));
     }
 }
 

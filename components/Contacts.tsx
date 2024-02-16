@@ -62,16 +62,6 @@ export default function ContactsModal({
                         onPress={onRequestClose}
                     />
                 </View>
-                <View className="w-full flex flex-row items-center justify-between p-2">
-                    <TextInput
-                        value={search}
-                        onChangeText={setSearch}
-                        className="flex-1 rounded-lg p-2 placeholder:text-white border border-gray-300 focus:border-gray-400 bg-gray-200 dark:border-gray-600  dark:focus:boder-gray-700 dark:bg-gray-900"
-                        placeholder="Find"
-                        placeholderTextColor={"gray"}
-                        returnKeyType="search"
-                    />
-                </View>
                 <FlatList
                     className="flex-1 w-full"
                     data={search ? searchResults() : users}
@@ -101,6 +91,19 @@ export default function ContactsModal({
                     ListEmptyComponent={emptyListComponent(!!search.length)}
                     keyExtractor={(item) => item.address}
                 />
+                <View className="w-full flex flex-row items-center justify-between p-2">
+                    <TextInput
+                        value={search}
+                        onChangeText={setSearch}
+                        className="flex-1 rounded-lg p-2 placeholder:text-white border border-gray-300 focus:border-gray-400 bg-gray-200 dark:border-gray-600  dark:focus:boder-gray-700 dark:bg-gray-900"
+                        placeholder="Find"
+                        placeholderTextColor={"gray"}
+                        returnKeyType="search"
+                    />
+                    <Pressable className="p-4 rounded-xl bg-gray-900 dark:bg-gray-50">
+                        <Feather name="plus" size={20} color={theme[colorScheme].bg}/>
+                    </Pressable>
+                </View>
             </View>
         </Modal>
     );
