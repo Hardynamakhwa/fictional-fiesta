@@ -17,10 +17,6 @@ class UserStore {
     constructor() {
     }
 
-    #init(){
-        this
-    }
-
     @computed get admin() { return this.#admin }
 
     @action get(address: string): User | undefined {

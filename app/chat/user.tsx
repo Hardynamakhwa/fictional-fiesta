@@ -32,6 +32,12 @@ export default function Page() {
                 title: user.displayName || user.address,
                 headerTitleAlign: "center",
             }} />
+            <View className="flex-1 flex flex-row gap-x-4">
+                <View className="p-4 rounded-lg bg-gray-white dark:bg-gray-800">
+                    <QRCode value="null" />
+                </View>
+                <Text>{user.address} <Feather name="clipboard" color={theme[colorScheme.colorScheme].tint} /></Text>
+            </View>
 
             {
                 isAdmin ?
