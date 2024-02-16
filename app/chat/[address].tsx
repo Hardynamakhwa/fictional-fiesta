@@ -29,6 +29,7 @@ export default function Page() {
         ),
         (data, title) => ({ title, data })
     )
+    const selected: string[] = [];
 
     const toUser = () => router.push("/chat/user?address=" + user.address);
 
@@ -51,7 +52,34 @@ export default function Page() {
                     )
                 },
             }} />
-            <SectionList className="flex-1 flex w-full h-full flex-col" sections={sections} renderItem={renderItem} renderSectionHeader={renderSectionHeader} ListEmptyComponent={emptyListComponent()} keyExtractor={keyExtractor} />
+            <SectionList 
+                className="flex-1 flex w-full h-full flex-col" 
+                sections={sections} 
+                renderItem={({item}:{item: Message})=>{
+                    const handlePress = () => {
+                        throw new Error("Function not implemented.");
+                    }
+                    if (_.isEqual(item.sender, userStore.admin)) {
+                        return <>
+                            <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
+                                <View className="max-w-[80%] leading-1.5 p-4 border border-gray-200 bg-gray-50 rounded-lg shadow-lg">
+                                    <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
+                                </View>
+                            </Pressable>
+                        </>
+                     }
+                     return <>
+                         <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
+                             <View className="max-w-[80%] leading-1.5 p-4 border border-gray-300 bg-white rounded-lg shadow-lg">
+                                <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
+                             </View>
+                         </Pressable>
+                      </>
+                }} 
+                renderSectionHeader={renderSectionHeader} 
+                ListEmptyComponent={emptyListComponent()} 
+                keyExtractor={keyExtractor} 
+            />
 
             <View className="w-full p-2 bg-white gap-x-2 flex flex-row items-end">
                 <TextInput ref={inputRef} placeholder="Aa..." value={input} onChangeText={setInput} className="flex-1 p-2.5 bg-gray-200  border-gray-300 text-gray-900 text-sm rounded-lg  focus:border-gray-400 block " multiline numberOfLines={1} />
@@ -62,29 +90,6 @@ export default function Page() {
             <StatusBar style="auto" />
         </View>
     );
-}
-function renderItem({ item }: { item: Message }) {
-    const handlePress = () => {
-        throw new Error("Function not implemented.");
-    }
-
-    if (_.isEqual(item.sender, userStore.admin)) {
-        return <>
-            <Pressable className="w-full flex px-2 py-1 items-end" onPress={handlePress}>
-                <View className="max-w-[80%] leading-1.5 p-4 border border-gray-200 bg-gray-50 rounded-lg shadow-lg">
-                    <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
-                </View>
-            </Pressable>
-        </>
-    }
-
-    return <>
-        <Pressable className="w-full flex px-2 py-1 items-start" onPress={handlePress}>
-            <View className="max-w-[80%] leading-1.5 p-4 border border-gray-300 bg-white rounded-lg shadow-lg">
-                <Text className="text-sm font-normal text-gray-900">{item.text}</Text>
-            </View>
-        </Pressable>
-    </>
 }
 
 function renderSectionHeader({ section }: { section: { title: string } }) {
