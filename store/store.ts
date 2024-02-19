@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 class Store {
     users: User[] = []
     messages: Message[] = []
+    scheme: 'light' | 'dark' |'system' = 'light'
 
     #admin: User = {
         address: 'address',
@@ -31,12 +32,10 @@ class Store {
 
         reaction(() => this.users, (users) => {
             console.log(users);
-
         })
 
         reaction(() => this.messages, (messages) => {
             console.log(messages);
-
         })
     }
     get admin() { return this.#admin };
@@ -53,8 +52,8 @@ class Store {
         this.users = _.without(this.users, user);
     }
 
-    pushMessage(sender: User, receiver: User, text: string) {
-        this.messages = _.concat(this.messages, { id: randomUUID(), sender, receiver, text, timestamp: dayjs().toISOString() })
+    pushMessage(message: Message) {
+        this.messages = _.concat(this.messages, message)
     }
 
     deleteMessage(message: Message) {

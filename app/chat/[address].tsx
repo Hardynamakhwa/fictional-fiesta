@@ -10,6 +10,7 @@ import theme from "../../misc/theme";
 import { Message } from "../../types/chat";
 import { observer } from "mobx-react";
 import store from "../../store/store";
+import { randomUUID } from "expo-crypto";
 
 export default observer(() => {
     const { address } = useLocalSearchParams();
@@ -20,7 +21,9 @@ export default observer(() => {
     const user = address ? store.getUser(address as string) : store.admin;
     if (!user) return null
 
-    const messages = _.filter(store.messages, (message) => _.includes([user, store.admin], message.sender) && _.includes([user, store.admin], message.receiver))
+    const messages = store.messages.filter((message) => {
+        return (_.isEqual(message.sender, store.admin) && _.isEqual(message.receiver, user)) || (_.isEqual(message.receiver, store.admin) && _.isEqual(message.sender, user))
+    })
     const sections = _.map(
         _.groupBy(
             _.sortBy(
@@ -37,7 +40,7 @@ export default observer(() => {
 
     const handleSubmit = () => {
         inputRef.current?.blur();
-        store.pushMessage(store.admin, user, input)
+        store.pushMessage({ id: randomUUID(), sender: store.admin, receiver: user, text: input, timestamp: dayjs().toISOString() })
         setInput('')
     }
     const headerTitle = _.isEmpty(selected) ? (user.displayName || user.address) : `${_.size(selected)} selected`

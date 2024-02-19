@@ -3,17 +3,17 @@ import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
 import { useState } from "react";
-import { FlatList, Pressable, Text, TextInput, View } from "react-native";
+import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import Animated, { SlideInDown, SlideOutDown, ZoomIn, ZoomOut } from "react-native-reanimated";
-import Contacts from "../../components/Contacts";
-import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
+// import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
 // import ScanQRCodePrompt from "../../components/ScanQRCodePrompt";
 import { User } from "../../types/auth";
 import { useColorScheme } from "nativewind";
 import theme from "../../misc/theme";
 import store from "../../store/store";
 import { observer } from 'mobx-react';
+import { randomUUID } from "expo-crypto";
 
 type modalT = 'finder' | 'contacts' | 'qrscanner' | null
 
@@ -61,14 +61,54 @@ export default observer(() => {
                 :
                 <>
                     <Animated.View className="absolute bottom-4 right-4 w-14 h-14 bg-slate-900 rounded-xl items-center justify-center" entering={ZoomIn} exiting={ZoomOut}>
-                        <TapGestureHandler onActivated={() => setModal('qrscanner')}>
+                        <TapGestureHandler onActivated={() => store.addUser({address: randomUUID(), publicKey: randomUUID(), displayName: 'Mr Namakhwa'})}>
                             <Feather name="plus" size={24} color="white" />
                         </TapGestureHandler>
                     </Animated.View>
                 </>
             }
-            <Contacts shown={modal === 'contacts'} onRequestClose={() => setModal(null)} />
-            <ScanQRBottomsheet visible={modal === 'qrscanner'} onScanQR={handleScannedQR} onRequestClose={() => setModal(null)} />
+            <Modal
+                animationType="slide"
+                visible={modal === 'contacts'}
+                transparent
+                statusBarTranslucent
+                onRequestClose={()=>setModal(null)}
+            >
+                <Pressable
+                    style={StyleSheet.absoluteFill}
+                    className="bg-black/75"
+                />
+                <View>
+                    <FlatList
+                        className="flex-1 w-full"
+                        data={store.users}
+                        renderItem={({ item }: { item: User }) => {
+                            return <>
+                                <Pressable
+                                    onPress={() => {
+                                        setModal(null)
+                                        router.push(`/chat/${item.address}`);
+                                    }}
+                                    className="flex flex-row items-center gap-4 px-4 py-1">
+                                    <View className="relative inline-flex items-center justify-center w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+                                        <Text className="font-medium text-gray-600 dark:text-gray-300">{(item.displayName || item.address).substring(0, 2).toLocaleUpperCase()}</Text>
+                                    </View>
+                                    <View>
+                                        <Text className="text-sm font-medium text-gray-900 truncate dark:text-white">
+                                            {item.displayName}
+                                        </Text>
+                                        <Text className="text-sm text-gray-500 truncate dark:text-gray-400">
+                                            {item.address}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </>
+                        }}
+                        keyExtractor={(item) => item.address}
+                    />
+                </View>
+            </Modal>
+            {/* <ScanQRBottomsheet visible={modal === 'qrscanner'} onScanQR={handleScannedQR} onRequestClose={() => setModal(null)} /> */}
             {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
             <StatusBar style="auto" />
         </View>
