@@ -7,21 +7,20 @@ import { useColorScheme } from "nativewind";
 import React from "react";
 import { Pressable, SectionList, Text, TextInput, View } from "react-native";
 import theme from "../../misc/theme";
-import chatStore from "../../store/chatStore";
-import userStore from "../../store/userStore";
 import { Message } from "../../types/chat";
+import { observer } from "mobx-react";
+import store from "../../store/store";
 
-export default function Page() {
+export default observer(() => {
     const { address } = useLocalSearchParams();
     const { colorScheme } = useColorScheme();
     const [input, setInput] = React.useState('')
     const inputRef = React.createRef<TextInput>()
 
-    const user = address ? userStore.get(address as string) : userStore.admin;
-
+    const user = address ? store.getUser(address as string) : store.admin;
     if (!user) return null
 
-    const messages = _.filter(chatStore.messages, (message) => _.includes([user, userStore.admin], message.sender) && _.includes([user, userStore.admin], message.receiver))
+    const messages = _.filter(store.messages, (message) => _.includes([user, store.admin], message.sender) && _.includes([user, store.admin], message.receiver))
     const sections = _.map(
         _.groupBy(
             _.sortBy(
@@ -38,7 +37,7 @@ export default function Page() {
 
     const handleSubmit = () => {
         inputRef.current?.blur();
-        chatStore.push(user, input)
+        store.pushMessage(store.admin, user, input)
         setInput('')
     }
     const headerTitle = _.isEmpty(selected) ? (user.displayName || user.address) : `${_.size(selected)} selected`
@@ -61,7 +60,7 @@ export default function Page() {
                     const handlePress = () => {
                         setSelected(_.xor(selected, [item]));
                     }
-                    if (_.isEqual(item.sender, userStore.admin)) {
+                    if (_.isEqual(item.sender, store.admin)) {
                         return <>
                             <Pressable className={"w-full flex px-2 py-1 items-end " + (_.includes(selected, item) && ' bg-blue-600/75')} onPress={handlePress}>
                                 <View className="max-w-[80%] leading-1.5 p-4 rounded-lg shadow-lg border border-gray-200 bg-gray-50 dark:bg-gray-100">
@@ -101,7 +100,7 @@ export default function Page() {
             <StatusBar style="auto" />
         </View>
     );
-}
+})
 
 function renderSectionHeader({ section }: { section: { title: string } }) {
     return <>

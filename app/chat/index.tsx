@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import _ from "lodash";
-import React from "react";
+import { useState } from "react";
 import { FlatList, Pressable, Text, TextInput, View } from "react-native";
 import { TapGestureHandler } from "react-native-gesture-handler";
 import Animated, { SlideInDown, SlideOutDown, ZoomIn, ZoomOut } from "react-native-reanimated";
@@ -12,38 +12,27 @@ import ScanQRBottomsheet from "../../components/ScanQRBottomsheet";
 import { User } from "../../types/auth";
 import { useColorScheme } from "nativewind";
 import theme from "../../misc/theme";
+import store from "../../store/store";
+import { observer } from 'mobx-react';
+
+type modalT = 'finder' | 'contacts' | 'qrscanner' | null
 
 
-const users: User[] = [
-    { displayName: "Mark Murazik", address: "address1", publicKey: "key" },
-    { displayName: "Mrs. Perry Welch", address: "address2", publicKey: "key" }
-]
-
-export default function Page() {
+export default observer(() => {
     const { colorScheme } = useColorScheme()
-    const [finderShown, setFinderShown] = React.useState(false);
-    const [finderQuery, setFinderQuery] = React.useState("");
-    const [scanQRVisible, setScanQRVisible] = React.useState(false);
+    const [query, setQuery] = useState('false');
+    const [modal, setModal] = useState<modalT>(null);
 
-    const [contactsShown, setContactsShown] = React.useState(false);
-
-    const toProfile = () => {
-        router.push("/chat/user");
-    }
-
-    function toggleScanQR() {
-        setScanQRVisible(true);
-    }
 
     const handleScannedQR = ({ data }: { data: string }) => {
 
     }
 
-    const data = finderQuery.length && finderShown ?
-        _.filter(users, user => user.displayName ?
-            user.displayName.toLowerCase().includes(finderQuery.toLowerCase()) :
+    const data = !_.isEmpty(query) && modal === 'finder' ?
+        _.filter(store.users, user => user.displayName ?
+            user.displayName.toLowerCase().includes(query.toLowerCase()) :
             false) :
-        users;
+        store.users;
 
     return (
         <View className="flex flex-col flex-1 items-center justify-center dark:bg-black">
@@ -52,41 +41,41 @@ export default function Page() {
                 headerRight(props) {
                     return <>
                         <View className="flex flex-row gap-x-4">
-                            <Feather name="book" size={24} color={props.tintColor} onPress={() => setContactsShown(true)} />
-                            <Feather name="search" size={24} color={props.tintColor} onPress={() => setFinderShown(true)} />
-                            <Feather name="user" size={24} color={props.tintColor} onPress={toProfile} />
+                            <Feather name="book" size={24} color={props.tintColor} onPress={() => setModal('contacts')} />
+                            <Feather name="search" size={24} color={props.tintColor} onPress={() => setModal('finder')} />
+                            <Feather name="user" size={24} color={props.tintColor} onPress={() => router.push('/chat/user')} />
                         </View>
                     </>
                 },
             }} />
             <FlatList className="flex-1 w-full" data={data} renderItem={renderUser} keyExtractor={item => item.address} ListEmptyComponent={renderUsersEmpty} />
-            {finderShown ?
+            {modal === 'finder' ?
                 <>
                     <Animated.View entering={SlideInDown} exiting={SlideOutDown} className="flex flex-row items-center gap-x-4 p-4 bg-white dark:bg-gray-800">
-                        <TextInput value={finderQuery} onChangeText={setFinderQuery} className="flex-1 rounded-lg p-2 placeholder:text-white border border-slate-300 bg-gray-200 dark:border-gray-700 dark:focus:border-gray-600 dark:bg-gray-900" placeholder="Find" placeholderTextColor={"gray"} returnKeyType="search" />
+                        <TextInput value={query} onChangeText={setQuery} className="flex-1 rounded-lg p-2 placeholder:text-white border border-slate-300 bg-gray-200 dark:border-gray-700 dark:focus:border-gray-600 dark:bg-gray-900" placeholder="Find" placeholderTextColor={"gray"} returnKeyType="search" />
                         <Pressable>
-                            <Feather name="x" size={24} color={theme[colorScheme].tint} onPress={() => setFinderShown(false)} />
+                            <Feather name="x" size={24} color={theme[colorScheme].tint} onPress={() => setModal(null)} />
                         </Pressable>
                     </Animated.View>
                 </>
                 :
                 <>
                     <Animated.View className="absolute bottom-4 right-4 w-14 h-14 bg-slate-900 rounded-xl items-center justify-center" entering={ZoomIn} exiting={ZoomOut}>
-                        <TapGestureHandler onActivated={toggleScanQR}>
+                        <TapGestureHandler onActivated={() => setModal('qrscanner')}>
                             <Feather name="plus" size={24} color="white" />
                         </TapGestureHandler>
                     </Animated.View>
                 </>
             }
-            <Contacts shown={contactsShown} onRequestClose={() => setContactsShown(false)} />
-            <ScanQRBottomsheet visible={scanQRVisible} onScanQR={handleScannedQR} onRequestClose={() => setScanQRVisible(false)} />
+            <Contacts shown={modal === 'contacts'} onRequestClose={() => setModal(null)} />
+            <ScanQRBottomsheet visible={modal === 'qrscanner'} onScanQR={handleScannedQR} onRequestClose={() => setModal(null)} />
             {/* <ScanQRCodePrompt isOpen={saveUserPromptShown} onRequestClose={() => setSaveUserPromptShown(false)} onConfirm={() => setSaveUserPromptShown(false)} /> */}
             <StatusBar style="auto" />
         </View>
     );
 
 
-}
+})
 
 function renderUser({ item }: { item: User }) {
     const handlePress = () => router.push(`/chat/${item.address}`);
